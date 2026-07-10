@@ -71,7 +71,15 @@ function Results() {
                   animationDelay: `${i * 300}ms`,
                 }}
               >
-                <span className="absolute -top-6 left-0 rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white" style={{ background: severityColor[d.severity] }}>
+                <span
+                  className="absolute left-0 rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white whitespace-nowrap"
+                  style={{
+                    background: severityColor[d.severity],
+                    ...(d.bbox.y < 8
+                      ? { top: "calc(100% + 2px)" }
+                      : { bottom: "calc(100% + 2px)" }),
+                  }}
+                >
                   {d.type} · {Math.round(d.confidence * 100)}%
                 </span>
               </div>

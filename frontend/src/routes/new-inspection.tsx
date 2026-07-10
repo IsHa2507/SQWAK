@@ -51,6 +51,8 @@ function NewInspection() {
       await api.inspect({ componentId, aircraft, notes, imageDataUrl: preview });
       toast.success("Analysis complete — 4 defects detected");
       navigate({ to: "/results" });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Analysis failed — please try again");
     } finally {
       setAnalyzing(false);
     }

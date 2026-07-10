@@ -78,9 +78,9 @@ function Trends() {
           <h2 className="text-base font-semibold">Historical Inspection Timeline</h2>
           <div className="mt-4 relative border-l-2 border-border/60 pl-6 space-y-6">
             {mockTrends.slice(-6).reverse().map((t, i) => (
-              <div key={i} className="relative">
+              <div key={t.date} className="relative">
                 <div className="absolute -left-[29px] top-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary shadow-[0_0_0_4px_oklch(0.17_0.03_260)]" />
-                <p className="text-xs text-muted-foreground">{t.date} 2026</p>
+                <p className="text-xs text-muted-foreground">{t.date}</p>
                 <p className="mt-0.5 text-sm font-medium">Inspection cycle #{mockTrends.length - i}</p>
                 <p className="text-xs text-muted-foreground">Defect size: {t.defectSize}mm · Risk: {t.riskScore} · {t.inspections} scans</p>
               </div>
@@ -91,8 +91,8 @@ function Trends() {
         <div className="glass-card rounded-xl p-5">
           <h2 className="text-base font-semibold">Trend Insights</h2>
           <div className="mt-4 space-y-4">
-            {insights.map((ins, i) => (
-              <div key={i} className="rounded-lg border border-border/60 bg-card/40 p-3">
+            {insights.map((ins) => (
+              <div key={ins.title} className="rounded-lg border border-border/60 bg-card/40 p-3">
                 <div className="flex items-center gap-2">
                   <Lightbulb className="h-3.5 w-3.5 text-primary" />
                   <p className="text-sm font-medium">{ins.title}</p>

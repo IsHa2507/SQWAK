@@ -41,7 +41,7 @@ function Dashboard() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard label="Total Inspections" value="4,812" delta="+128 this week" icon={Activity} tone="primary" />
         <KpiCard label="Critical Defects" value={critical} delta="Requires grounding" icon={AlertTriangle} tone="destructive" />
-        <KpiCard label="Components Monitored" value={mockComponents.length * 42} delta="Across 18 airframes" icon={Cpu} tone="primary" />
+        <KpiCard label="Components Monitored" value={mockComponents.length.toLocaleString()} delta="Across 18 airframes" icon={Cpu} tone="primary" />
         <KpiCard label="Fleet Risk Score" value="42.7" delta="Moderate — stable" icon={ShieldAlert} tone="warning" />
       </div>
 
