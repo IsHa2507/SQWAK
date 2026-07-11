@@ -1,0 +1,36 @@
+# =============================================================================
+# SecureVision Edge — Backend Requirements
+# =============================================================================
+# SQLite ships with Python's standard library, so no extra driver is needed.
+# The packages below add optional tooling and prepare the project for FastAPI.
+#
+# Install:  pip install -r requirements.txt
+# =============================================================================
+
+# ---------------------------------------------------------------------------
+# Core — always required
+# ---------------------------------------------------------------------------
+
+# Type annotations back-ported to Python 3.9 / 3.10
+# (used for `dict | None`, `list[dict]` syntax in db_utils.py)
+# No install needed on Python 3.12+; keep for compatibility.
+# typing-extensions>=4.9.0
+
+# ---------------------------------------------------------------------------
+# FastAPI stack (uncomment when you're ready to expose HTTP endpoints)
+# ---------------------------------------------------------------------------
+# fastapi>=0.111.0
+# uvicorn[standard]>=0.29.0
+# python-multipart>=0.0.9   # for file upload (inspection images)
+# pydantic>=2.7.0           # request/response validation
+
+# ---------------------------------------------------------------------------
+# Django stack (alternative to FastAPI — uncomment if using Django)
+# ---------------------------------------------------------------------------
+# django>=5.0.0
+
+# ---------------------------------------------------------------------------
+# Development / testing utilities
+# ---------------------------------------------------------------------------
+# pytest>=8.2.0
+# httpx>=0.27.0             # async test client for FastAPI
