@@ -1,31 +1,32 @@
-import { mockAudit, mockComponents, mockInspection, mockTrends } from "@/utils/mockData";
-import type { AuditRecord, FleetComponent, InspectionResult, TrendPoint } from "@/types";
-
-const delay = (ms = 400) => new Promise((r) => setTimeout(r, ms));
+const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
 export const api = {
-  async inspect(payload: { componentId: string; aircraft: string; notes: string; imageDataUrl?: string }): Promise<InspectionResult> {
-    await delay(1200);
-    return { ...mockInspection, componentId: payload.componentId || mockInspection.componentId, aircraftModel: payload.aircraft || mockInspection.aircraftModel, imageUrl: payload.imageDataUrl || "" };
+  async inspect(payload: { componentId: string; aircraft: string; notes: string; imageDataUrl?: string }) {
+    const form = new FormData();
+    form.append("component_id", payload.componentId);
+    form.append("aircraft", payload.aircraft);
+    form.append("notes", payload.notes);
+    if (payload.imageDataUrl) {
+      const blob = await (await fetch(payload.imageDataUrl)).blob();
+      form.append("image", blob, "capture.jpg");
+    }
+    const res = await fetch(`${BASE_URL}/api/inspect`, { method: "POST", body: form });
+    if (!res.ok) throw new Error("Analysis failed");
+    return res.json();
   },
-  async getComponents(): Promise<FleetComponent[]> {
-    await delay(300);
-    return mockComponents;
+  async getComponents() {
+    return fetch(`${BASE_URL}/api/components`).then((r) => r.json());
   },
-  async getComponent(id: string): Promise<FleetComponent | undefined> {
-    await delay(300);
-    return mockComponents.find((c) => c.id === id) ?? mockComponents[0];
+  async getComponent(id: string) {
+    return fetch(`${BASE_URL}/api/components/${id}`).then((r) => r.json());
   },
-  async getTrends(_id: string): Promise<TrendPoint[]> {
-    await delay(300);
-    return mockTrends;
+  async getFleet() {
+    return fetch(`${BASE_URL}/api/components`).then((r) => r.json());
   },
-  async getFleet(): Promise<FleetComponent[]> {
-    await delay(300);
-    return mockComponents;
+  async getAudit() {
+    return fetch(`${BASE_URL}/api/audit`).then((r) => r.json());
   },
-  async getAudit(): Promise<AuditRecord[]> {
-    await delay(300);
-    return mockAudit;
+  async getFleetSummary() {
+    return fetch(`${BASE_URL}/api/fleet-summary`).then((r) => r.json());
   },
 };
