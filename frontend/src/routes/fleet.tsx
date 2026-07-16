@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { KpiCard } from "@/components/KpiCard";
 import { StatusBadge } from "@/components/StatusBadge";
-import { mockComponents } from "@/utils/mockData";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/services/api";
 import type { ComponentStatus } from "@/types";
 import { Button } from "@/components/ui/button";
 
@@ -22,15 +23,16 @@ export const Route = createFileRoute("/fleet")({
 const filters: ("all" | ComponentStatus)[] = ["all", "safe", "monitor", "recheck", "ground"];
 
 function Fleet() {
+  const { data: components = [] } = useQuery({ queryKey: ["components"], queryFn: api.getComponents });
   const [q, setQ] = useState("");
   const [status, setStatus] = useState<(typeof filters)[number]>("all");
 
   const rows = useMemo(() => {
-    return mockComponents
+    return components
       .filter((c) => (status === "all" ? true : c.status === status))
       .filter((c) => `${c.name} ${c.aircraft} ${c.tailNumber} ${c.id}`.toLowerCase().includes(q.toLowerCase()))
       .sort((a, b) => b.riskScore - a.riskScore);
-  }, [q, status]);
+  }, [q, status, components]);
 
   return (
     <div className="space-y-6">
@@ -41,10 +43,10 @@ function Fleet() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <KpiCard label="Components" value={mockComponents.length} icon={Plane} tone="primary" />
-        <KpiCard label="Safe" value={mockComponents.filter(c => c.status === "safe").length} icon={ShieldCheck} tone="success" />
-        <KpiCard label="Under Watch" value={mockComponents.filter(c => c.status === "recheck" || c.status === "monitor").length} icon={Activity} tone="warning" />
-        <KpiCard label="Grounded" value={mockComponents.filter(c => c.status === "ground").length} icon={AlertTriangle} tone="destructive" />
+        <KpiCard label="Components" value={components.length} icon={Plane} tone="primary" />
+        <KpiCard label="Safe" value={components.filter(c => c.status === "safe").length} icon={ShieldCheck} tone="success" />
+        <KpiCard label="Under Watch" value={components.filter(c => c.status === "recheck" || c.status === "monitor").length} icon={Activity} tone="warning" />
+        <KpiCard label="Grounded" value={components.filter(c => c.status === "ground").length} icon={AlertTriangle} tone="destructive" />
       </div>
 
       <div className="glass-card rounded-xl p-5">
