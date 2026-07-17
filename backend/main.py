@@ -146,7 +146,29 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+from database.db_utils import fetch_one, fetch_all  # add to your existing import line
 
+@app.get("/api/inspections/{inspection_id}")
+def get_inspection(inspection_id: int):
+    row = fetch_one("SELECT * FROM inspections WHERE id = ?", (inspection_id,))
+    if not row:
+        raise HTTPException(404, "Inspection not found")
+    return row
+
+@app.get("/api/trends")
+def trends():
+    rows = fetch_all(
+        "SELECT inspection_date, confidence_score FROM inspections ORDER BY inspection_date ASC"
+    )
+    return [
+        {
+            "date": r["inspection_date"],
+            "riskScore": round(r["confidence_score"] * 100, 1),
+            "inspections": i + 1,
+            "defectSize": round(r["confidence_score"] * 100, 1),
+        }
+        for i, r in enumerate(rows)
+    ]
 
 @app.get("/health")
 def health():

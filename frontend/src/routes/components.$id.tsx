@@ -3,6 +3,7 @@ import { ArrowLeft, Thermometer, Gauge, Timer, Wrench } from "lucide-react";
 import { KpiCard } from "@/components/KpiCard";
 import { SeverityBadge, StatusBadge } from "@/components/StatusBadge";
 import { mockComponents } from "@/utils/mockData";
+import { api } from "@/services/api";
 import type { FleetComponent } from "@/types";
 
 export const Route = createFileRoute("/components/$id")({
@@ -12,8 +13,9 @@ export const Route = createFileRoute("/components/$id")({
       { name: "description", content: "Component profile, flight hours, stress cycles, and defect history." },
     ],
   }),
-  loader: ({ params }): FleetComponent => {
-    const c = mockComponents.find((x) => x.id === params.id);
+  loader: async ({ params }) => {
+    const profile = await api.getComponent(params.id);
+    const c = profile.component;
     if (!c) throw notFound();
     return c;
   },

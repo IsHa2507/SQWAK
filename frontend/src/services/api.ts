@@ -37,14 +37,21 @@ export const api = {
   async getFleet() {
     return this.getComponents();
   },
-  async getComponent(id: string) {
-    return fetch(`${BASE_URL}/api/components/${id}`).then((r) => r.json());
-  },
 
   async getAudit() {
     return fetch(`${BASE_URL}/api/audit`).then((r) => r.json());
   },
   async getFleetSummary() {
     return fetch(`${BASE_URL}/api/fleet-summary`).then((r) => r.json());
+  },
+  async getComponent(id: string) {
+    const raw = await fetch(`${BASE_URL}/api/components/${id}`).then((r) => r.json());
+    return { ...raw, component: mapComponent(raw.component) };
+  },
+  async getInspection(id: number) {
+    return fetch(`${BASE_URL}/api/inspections/${id}`).then((r) => r.json());
+  },
+  async getTrends() {
+    return fetch(`${BASE_URL}/api/trends`).then((r) => r.json());
   },
 };

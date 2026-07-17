@@ -48,9 +48,9 @@ function NewInspection() {
     if (!preview) return toast.error("Please upload a component image first");
     setAnalyzing(true);
     try {
-      await api.inspect({ componentId, aircraft, notes, imageDataUrl: preview });
-      toast.success("Analysis complete — 4 defects detected");
-      navigate({ to: "/results" });
+      const result = await api.inspect({ componentId, aircraft, notes, imageDataUrl: preview });
+      toast.success(`Analysis complete — verdict: ${result.verdict}`);
+      navigate({ to: "/results", search: { id: result.inspection_id } });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Analysis failed — please try again");
     } finally {

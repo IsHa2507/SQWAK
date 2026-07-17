@@ -3,7 +3,8 @@ import { ShieldCheck, Link2, CheckCircle2, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { mockAudit } from "@/utils/mockData";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/services/api";
 
 export const Route = createFileRoute("/audit")({
   head: () => ({
@@ -16,6 +17,24 @@ export const Route = createFileRoute("/audit")({
 });
 
 function Audit() {
+  const { data: rawAudit = [] } = useQuery({
+  queryKey: ["audit"],
+  queryFn: api.getAudit,
+  });
+
+  const mockAudit = rawAudit.map((r: any) => ({
+  id: String(r.id),
+  timestamp: r.timestamp,
+  action: r.inspection_id
+    ? "Inspection Logged"
+    : "System Event",
+  user: "AI Copilot",
+  componentId: r.inspection_id
+    ? `INS-${r.inspection_id}`
+    : "-",
+  hash: r.hash_value,
+  verified: r.integrity_status === "verified",
+  }));
   const verifiedCount = mockAudit.filter((r) => r.verified).length;
   const integrity = Math.round((verifiedCount / mockAudit.length) * 100);
   const allValid = integrity === 100;
