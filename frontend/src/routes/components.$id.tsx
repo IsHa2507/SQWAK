@@ -2,7 +2,6 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ArrowLeft, Thermometer, Gauge, Timer, Wrench } from "lucide-react";
 import { KpiCard } from "@/components/KpiCard";
 import { SeverityBadge, StatusBadge } from "@/components/StatusBadge";
-import { mockComponents } from "@/utils/mockData";
 import { api } from "@/services/api";
 import type { FleetComponent } from "@/types";
 

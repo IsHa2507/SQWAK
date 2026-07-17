@@ -46,7 +46,17 @@ export const api = {
   },
   async getComponent(id: string) {
     const raw = await fetch(`${BASE_URL}/api/components/${id}`).then((r) => r.json());
-    return { ...raw, component: mapComponent(raw.component) };
+    return {
+      ...raw,
+      component: {
+        ...mapComponent(raw.component),
+        defectHistory: (raw.inspections || []).map((insp: any) => ({
+          date: insp.inspection_date,
+          type: insp.defect_type,
+          severity: insp.severity,
+        })),
+      },
+    };
   },
   async getInspection(id: number) {
     return fetch(`${BASE_URL}/api/inspections/${id}`).then((r) => r.json());
