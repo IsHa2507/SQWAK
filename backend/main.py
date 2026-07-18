@@ -79,7 +79,10 @@ def run_detection(image_bytes: bytes, annotated_filename: str) -> dict:
         )
 
         if len(results.boxes) == 0:
-            return {"defect_type": "No Defect", "confidence": 0.0, "bbox": None, "all_defects": []}
+            return {
+                "defect_type": "No Defect", "confidence": 0.0, "bbox": None,
+                "all_defects": [], "annotated_image": f"uploads/{annotated_filename}",
+            }
 
         best_box = max(results.boxes, key=lambda b: float(b.conf))
         x1, y1, x2, y2 = best_box.xyxy[0].tolist()
@@ -243,7 +246,7 @@ async def inspect(
         "all_defects": detection.get("all_defects", []),
         "verdict": reasoning["verdict"],
         "explanation": reasoning["explanation"],
-        "annotated_image": detection["annotated_image"],
+        "annotated_image": detection.get("annotated_image", f"uploads/{filename}"),
     }
 
 
