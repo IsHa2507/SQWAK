@@ -15,10 +15,12 @@ import sys
 import uuid
 from contextlib import asynccontextmanager
 from pathlib import Path
+import cv2
 
 import httpx
 from fastapi import FastAPI, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
@@ -62,13 +64,19 @@ else:
     log.warning("No model found at %s — using placeholder detection until best.pt is added.", MODEL_PATH)
 
 
-def run_detection(image_bytes: bytes) -> dict:
+def run_detection(image_bytes: bytes, annotated_filename: str) -> dict:
     if _yolo_model is not None:
         from PIL import Image
         import io
 
         image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
         results = _yolo_model.predict(image, conf=0.25, verbose=False)[0]
+        annotated = results.plot()
+
+        cv2.imwrite(
+            str(UPLOAD_DIR / annotated_filename),
+            annotated,
+        )
 
         if len(results.boxes) == 0:
             return {"defect_type": "No Defect", "confidence": 0.0, "bbox": None, "all_defects": []}
@@ -77,6 +85,7 @@ def run_detection(image_bytes: bytes) -> dict:
         x1, y1, x2, y2 = best_box.xyxy[0].tolist()
         return {
             "defect_type": _yolo_model.names[int(best_box.cls)],
+            "annotated_image": f"uploads/{annotated_filename}",
             "confidence": round(float(best_box.conf), 4),
             "bbox": {"x": round(x1), "y": round(y1), "w": round(x2 - x1), "h": round(y2 - y1)},
             "all_defects": [
@@ -140,6 +149,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="SecureVision Edge API", lifespan=lifespan)
+app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],
@@ -207,10 +217,12 @@ async def inspect(
 ):
     image_bytes = await image.read() if image else b""
     filename = f"{uuid.uuid4().hex}.jpg"
+    annotated_filename = filename.replace(".jpg", "_annotated.jpg")
     if image_bytes:
         (UPLOAD_DIR / filename).write_bytes(image_bytes)
 
-    detection = run_detection(image_bytes)
+    detection = run_detection(image_bytes, annotated_filename)
+    
     reasoning = await run_reasoning(component_id, detection["defect_type"], detection["confidence"])
 
     inspection_id = insert_inspection(
@@ -231,6 +243,7 @@ async def inspect(
         "all_defects": detection.get("all_defects", []),
         "verdict": reasoning["verdict"],
         "explanation": reasoning["explanation"],
+        "annotated_image": detection["annotated_image"],
     }
 
 
