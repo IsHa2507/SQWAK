@@ -2,7 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { TrendingUp, Clock, Gauge, Lightbulb } from "lucide-react";
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis, ReferenceLine } from "recharts";
 import { KpiCard } from "@/components/KpiCard";
-import { mockTrends } from "@/utils/mockData";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/services/api";
 
 export const Route = createFileRoute("/trends")({
   head: () => ({
@@ -17,6 +18,7 @@ export const Route = createFileRoute("/trends")({
 const chartStyle = { background: "oklch(0.18 0.03 260)", border: "1px solid oklch(1 0 0 / 0.1)", borderRadius: 8, fontSize: 12 };
 
 function Trends() {
+  const { data: mockTrends = [] } = useQuery({ queryKey: ["trends"], queryFn: api.getTrends });
   const insights = [
     { title: "Fatigue crack propagation", body: "Sector 3A shows 2.4× baseline growth over last quarter. Consider ultrasonic screening cadence increase." },
     { title: "Corrosion clusters correlate with humidity", body: "Coastal-based airframes trending 18% higher corrosion incidence vs inland fleet." },

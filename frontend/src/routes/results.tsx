@@ -4,7 +4,9 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { SeverityBadge } from "@/components/StatusBadge";
-import { mockInspection } from "@/utils/mockData";
+import { useSearch } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/services/api";
 
 export const Route = createFileRoute("/results")({
   head: () => ({
@@ -24,7 +26,23 @@ const severityColor: Record<string, string> = {
 };
 
 function Results() {
-  const r = mockInspection;
+  const { id } = useSearch({ from: "/results" });
+  const { data: raw } = useQuery({ queryKey: ["inspection", id], queryFn: () => api.getInspection(id) });
+  if (!raw) return <div className="p-6 text-muted-foreground">Loading inspection…</div>;
+ const r = {
+    id: String(raw.id),
+    componentId: raw.component_id,
+    componentName: raw.component_id,
+    aircraftModel: "",
+    timestamp: raw.inspection_date,
+    riskScore: Math.round(raw.confidence_score * 100), 
+    defects: [{ id: "1", type: raw.defect_type, severity: raw.severity, confidence: raw.confidence_score, location: "", bbox: { x: 0, y: 0, w: 0, h: 0 } }],
+    recommendation: raw.recommendation,
+    maintenanceAction: raw.severity,
+    imageUrl: raw.image_path
+  ? `http://localhost:8000/${raw.image_path.replace(".jpg", "_annotated.jpg")}`
+  : "",
+  };
 
   return (
     <div className="space-y-6">

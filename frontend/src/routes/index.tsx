@@ -3,7 +3,9 @@ import { AlertTriangle, Activity, Cpu, ShieldAlert, ArrowUpRight, Plane } from "
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid } from "recharts";
 import { KpiCard } from "@/components/KpiCard";
 import { SeverityBadge } from "@/components/StatusBadge";
-import { mockComponents, mockTrends, recentActivity } from "@/utils/mockData";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/services/api";
+import { mockTrends, recentActivity } from "@/utils/mockData";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -16,11 +18,13 @@ export const Route = createFileRoute("/")({
 });
 
 function Dashboard() {
-  const critical = mockComponents.filter((c) => c.status === "ground").length;
+  const { data: components = [] } = useQuery({ queryKey: ["components"], queryFn: api.getComponents });
+  const { data: fleetSummaryData } = useQuery({ queryKey: ["fleet-summary"], queryFn: api.getFleetSummary });
+  const critical = components.filter((c) => c.status === "ground").length;
   const fleetSummary = [
-    { label: "Safe", count: mockComponents.filter((c) => c.status === "safe").length, tone: "text-success" },
-    { label: "Monitor", count: mockComponents.filter((c) => c.status === "monitor").length, tone: "text-primary" },
-    { label: "Recheck", count: mockComponents.filter((c) => c.status === "recheck").length, tone: "text-warning" },
+    { label: "Safe", count: components.filter((c) => c.status === "safe").length, tone: "text-success" },
+    { label: "Monitor", count: components.filter((c) => c.status === "monitor").length, tone: "text-primary" },
+    { label: "Recheck", count: components.filter((c) => c.status === "recheck").length, tone: "text-warning" },
     { label: "Grounded", count: critical, tone: "text-destructive" },
   ];
 
@@ -39,10 +43,10 @@ function Dashboard() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <KpiCard label="Total Inspections" value="4,812" delta="+128 this week" icon={Activity} tone="primary" />
+        <KpiCard label="Total Inspections" value={fleetSummaryData?.total_inspections ?? "…"} delta="" icon={Activity} tone="primary" />
         <KpiCard label="Critical Defects" value={critical} delta="Requires grounding" icon={AlertTriangle} tone="destructive" />
-        <KpiCard label="Components Monitored" value={mockComponents.length.toLocaleString()} delta="Across 18 airframes" icon={Cpu} tone="primary" />
-        <KpiCard label="Fleet Risk Score" value="42.7" delta="Moderate — stable" icon={ShieldAlert} tone="warning" />
+        <KpiCard label="Components Monitored" value={components.length.toLocaleString()} delta="Across 18 airframes" icon={Cpu} tone="primary" />
+        <KpiCard label="Fleet Risk Score" value={fleetSummaryData?.fleet_risk_score ?? "…"} delta="" icon={ShieldAlert} tone="warning" />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
